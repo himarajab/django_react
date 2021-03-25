@@ -50,25 +50,25 @@ export default function SignIn() {
 		});
 	};
 
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		console.log(formData);
 
-		axiosInstance
-			.post(`token/`, {
-				email: formData.email,
-				password: formData.password,
-			})
-			.then((res) => {
-				localStorage.setItem('access_token', res.data.access);
-				localStorage.setItem('refresh_token', res.data.refresh);
-				axiosInstance.defaults.headers['Authorization'] =
-					'JWT ' + localStorage.getItem('access_token');
-				history.push('/');
-				//console.log(res);
-				//console.log(res.data);
-			});
-	};
+
+const handleSubmit = (e) =>{
+	e.preventDefault();
+	console.log(formData);
+	axiosInstance.post(`token/`,{
+		email:formData.email,
+		password:formData.password,
+	})
+	.then((res) =>{
+		localStorage.setItem('access_token',res.data.access);
+		localStorage.setItem('refresh_token',res.data.refresh);
+		// update axios instance with new headers
+		axiosInstance.defaults.headers['Authorization'] = 
+		'JWT ' +localStorage.getItem('access_token');
+		history.push('/');
+	});
+	
+};
 
 	const classes = useStyles();
 

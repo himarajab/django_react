@@ -1,3 +1,4 @@
+import Single  from "./components/single";
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as serviceWorker from './serviceWorker';
@@ -19,6 +20,7 @@ const routing = (
 				<Route path="/register" component={Register} />
 				<Route path="/login" component={Login} />
 				<Route path="/logout" component={Logout} />
+				<Route path="/post/:slug" component={Single} />
 			</Switch>
 			<Footer />
 		</React.StrictMode>
