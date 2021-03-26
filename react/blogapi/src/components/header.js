@@ -1,4 +1,6 @@
-import React from 'react';
+import { useHistory } from 'react-router-dom';
+import SearchBar from 'material-ui-search-bar';
+import React, { useState, useEffect } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -22,6 +24,19 @@ const useStyles = makeStyles((theme) => ({
 
 function Header() {
 	const classes = useStyles();
+	let history = useHistory();
+	const [data,setData] = useState({search:''});
+
+	const goSearch = () =>{
+		history.push({
+			pathname:'/search/',
+			// build url 
+			search:'?search=' + data.search,
+		});
+		// to be able to search again
+		window.location.reload();
+	};
+
 	return (
 		<React.Fragment>
 			<CssBaseline />
@@ -47,6 +62,12 @@ function Header() {
 							Blog
 						</Link>
 					</Typography>
+					<SearchBar 
+					value={data.search}
+					onChange={(newValue) => setData({search:newValue})}
+					// when someone press enter after submit searched value
+					onRequestSearch={() => goSearch(data.search)}
+					/>
 					<nav>
 						<Link
 							color="textPrimary"

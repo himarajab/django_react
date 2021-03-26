@@ -47,18 +47,48 @@ class PostUserWritePermission(BasePermission):
 #         return Response(serializer_class.data)
 
 
-class PostList(viewsets.ModelViewSet):
-    permission_classes = [PostUserWritePermission]
+class PostList(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer
 
-    # define custom queryset
+    # display posts only created by this user
     def get_queryset(self):
-        return Post.postobjects.all()
+        user = self.request.user
+        return Post.objects.filter(author=user)
 
-    # what we mean by get  a single object
-    def get_object(self,queryset=None,**kwargs):
-        # get objects by it's slug instead of id
-        item = self.kwargs.get('pk')
-        return get_object_or_404(Post,slug=item)
+class PostDetail(generics.ListAPIView):
+    # permission_classes = [PostUserWritePermission]
+    # queryset= Post.objects.all()
+    serializer_class = PostSerializer
+    
+    # what we mean by get a single object
+    # def get_object(self,queryset=None,**kwargs):
+    #     # get objects by it's slug instead of id
+    #     item = self.kwargs.get('pk')
+    #     return get_object_or_404(Post,slug=item)
 
-        
+    # def get_queryset(self):
+    #     # filter posts based on their slug
+    #     slug = self.kwargs['pk']
+    #     print(slug)
+    #     return Post.objects.filter(slug=slug)
+    
+    def get_queryset(self):
+        # get parmeter for the url 
+        slug = self.request.query_params.get('slug',None) 
+        return Post.objects.filter(slug=slug)
+
+
+
+# Post Search
+
+
+class PostListDetailfilter(generics.ListAPIView):
+
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    filter_backends = [filters.SearchFilter]
+    # '^' Starts-with search.
+    # '=' Exact matches.
+    # '@' full text search only with postgres .
+    search_fields = ['^slug']
