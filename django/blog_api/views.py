@@ -1,8 +1,11 @@
 
+from rest_framework.parsers import MultiPartParser,FormParser
 from rest_framework import permissions
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from rest_framework import generics,viewsets,filters
+from rest_framework import generics,viewsets,filters,status
+from rest_framework.serializers import Serializer
+from rest_framework.views import APIView
 from blog.models import Post
 from .serializers import PostSerializer
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated, IsAuthenticatedOrReadOnly, BasePermission, IsAdminUser, DjangoModelPermissions
@@ -76,10 +79,22 @@ class PostListDetailfilter(generics.ListAPIView):
 
 
 # post admin
-class CreatePost(generics.CreateAPIView):
-    serializer_class = PostSerializer
-    queryset = Post.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+# class CreatePost(generics.CreateAPIView):
+#     serializer_class = PostSerializer
+#     queryset = Post.objects.all()
+#     permission_classes = [permissions.IsAuthenticated]
+
+class CreatePost(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    def post(self, request, format=None):
+        print(request.data)
+        serializer = PostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
 # collect the data first to be able to edit it 
 class AdminPostDetail(generics.RetrieveAPIView):
     serializer_class = PostSerializer
@@ -87,7 +102,6 @@ class AdminPostDetail(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 class EditPost(generics.UpdateAPIView):
-    print('in')
     serializer_class = PostSerializer
     queryset = Post.objects.all()
     permission_classes = [permissions.IsAuthenticated]

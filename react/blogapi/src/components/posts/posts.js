@@ -52,11 +52,11 @@ const Posts = (props) => {
 									href={'post/' +post.slug}
 									className={classes.link}
 									>
-									<CardMedia
-										className={classes.cardMedia}
-										image="https://source.unsplash.com/random"
-										title="Image title"
-									/>
+<CardMedia
+											className={classes.cardMedia}
+											image={post.image}
+											title="Image title"
+										/>
 									</Link>
 									<CardContent className={classes.cardContent}>
 										<Typography

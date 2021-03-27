@@ -10,6 +10,9 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import IconButton from '@material-ui/core/IconButton';
+import PhotoCamera from '@material-ui/icons/PhotoCamera';
+
 
 const useStyles = makeStyles((theme) => ({
 	paper: {
@@ -61,13 +64,20 @@ export default function Create() {
 
 	});
 
-	const [formData, updateFormData] = useState(initialFormData);
+	const [postData, updateFormData] = useState(initialFormData);
+	const [postimage, setPostImage] = useState(null);
 
 	const handleChange = (e) =>{
+		if ([e.target.name] == 'image') {
+			setPostImage({
+				// with files access files , with texts access value
+				image:e.target.files,
+			});
+		}
 		if ([e.target.name] == 'title') {
 			var slug = 'slug';
 			updateFormData({
-				...formData,
+				...postData,
 				// trimming any white space
 				// target.name : field name E.G content
 				[e.target.name]:e.target.value.trim(),
@@ -76,7 +86,7 @@ export default function Create() {
 			});
 		} else {
 			updateFormData({
-				...formData,
+				...postData,
 				// trimming any white space
 				[e.target.name]:e.target.value.trim(),				
 			});
@@ -84,16 +94,18 @@ export default function Create() {
 	};
 	const handleSubmit = (e) =>{
 		e.preventDefault();
-		axiosInstance.post(`admin/create/`,{
-			title:formData.title,
-			slug:formData.slug,
-			author:1,
-			excerpt:formData.excerpt,
-			content:formData.content,
-		})
-		.then((res) =>{
-			history.push('/admin/');
+		let formData= new FormData();
+		formData.append('title',postData.title);
+		formData.append('slug',postData.slug);
+		formData.append('author',1);
+		formData.append('excerpt',postData.excerpt);
+		formData.append('content',postData.content);
+		formData.append('image',postimage.image[0]);
+		axiosInstance.post(`admin/create/`,formData);
+		history.push({
+			pathname: '/admin/',
 		});
+		window.location.reload();
 	};
 	
 
@@ -146,7 +158,7 @@ export default function Create() {
 								name="slug"
 								autoComplete="slug"
 								// grep the value and then show it on the field 
-								value={formData.slug}
+								value={postData.slug}
 								onChange={handleChange}
 							/>
 						</Grid>
@@ -164,6 +176,14 @@ export default function Create() {
 								rows={4}
 							/>
 						</Grid>
+						<input 
+						accept="image/*"
+						className={classes.input}
+						id="post-image"
+						onChange={handleChange}
+						name="image"
+						type="file"
+						/>
 					</Grid>
 					<Button
 						type="submit"

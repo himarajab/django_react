@@ -1,7 +1,11 @@
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
 
+# instance=post
+def upload_to(instance,filename):
+    return f'posts/{filename}'
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -25,6 +29,7 @@ class Post(models.Model):
         Category, on_delete=models.PROTECT, default=1)
     title = models.CharField(max_length=250)
     excerpt = models.TextField(null=True)
+    image = models.ImageField(_("Image"), upload_to=upload_to,default='posts/default.jpeg')
     content = models.TextField()
     slug = models.SlugField(max_length=250, unique_for_date='published')
     published = models.DateTimeField(default=timezone.now)
