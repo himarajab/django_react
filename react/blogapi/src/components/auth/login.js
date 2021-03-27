@@ -1,5 +1,8 @@
+import FbLogin from 'react-facebook-login';
+import facebookLogin from '../../axios/facebookLogin';
+
 import React, { useState } from 'react';
-import axiosInstance from '../../axios';
+import axiosInstance from '../../axios/login';
 import { useHistory } from 'react-router-dom';
 //MaterialUI
 import Avatar from '@material-ui/core/Avatar';
@@ -14,6 +17,9 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
+const responseFacebook = async (response) =>{
+	facebookLogin(response.accessToken);
+};
 const useStyles = makeStyles((theme) => ({
 	paper: {
 		marginTop: theme.spacing(8),
@@ -55,17 +61,18 @@ export default function SignIn() {
 const handleSubmit = (e) =>{
 	e.preventDefault();
 	console.log(formData);
-	axiosInstance.post(`token/`,{
-		email:formData.email,
+	axiosInstance.post(`auth/token/`,{
+		username:formData.email,
 		password:formData.password,
+		client_id:'v3BT25VprgZS0HJvOvsg4bxB4OBNmbPBPqfctR5k',
+		client_secret:'N6fi7auxhbb6ga6WjrCY4uljXzxe73DBuU657oe3L15nTUH05oB1e6KlE8mJSAl1QzM88KQqp2BUGsDBgDkA2MS6t9klEyPNNnzHTIrztNIpHmLzKksypUe51vLXiY8G',
+		grant_type:'password'
 	})
 	.then((res) =>{
-		localStorage.setItem('access_token',res.data.access);
-		localStorage.setItem('refresh_token',res.data.refresh);
-		// update axios instance with new headers
-		axiosInstance.defaults.headers['Authorization'] = 
-		'JWT ' +localStorage.getItem('access_token');
-		history.push('/');
+		console.log(res.data);
+		localStorage.setItem('access_token',res.data.access_token);
+		localStorage.setItem('refresh_token',res.data.refresh_token);
+
 	});
 	
 };
@@ -105,6 +112,7 @@ const handleSubmit = (e) =>{
 						autoComplete="current-password"
 						onChange={handleChange}
 					/>
+
 					<FormControlLabel
 						control={<Checkbox value="remember" color="primary" />}
 						label="Remember me"
@@ -119,6 +127,11 @@ const handleSubmit = (e) =>{
 					>
 						Sign In
 					</Button>
+					<FbLogin
+					appId="1327110464289628"
+					fields="name,email,picture"
+					callback={responseFacebook}
+					/>
 					<Grid container>
 						<Grid item xs>
 							<Link href="#" variant="body2">

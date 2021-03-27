@@ -54,6 +54,7 @@ class PostUserWritePermission(BasePermission):
 class PostList(generics.ListAPIView):
     serializer_class = PostSerializer
     queryset = Post.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
 
 class PostDetail(generics.RetrieveAPIView):
   
