@@ -1,4 +1,5 @@
 
+from rest_framework import permissions
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import generics,viewsets,filters
@@ -48,40 +49,20 @@ class PostUserWritePermission(BasePermission):
 
 
 class PostList(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+
+class PostDetail(generics.RetrieveAPIView):
+  
     serializer_class = PostSerializer
 
-    # display posts only created by this user
-    def get_queryset(self):
-        user = self.request.user
-        return Post.objects.filter(author=user)
-
-class PostDetail(generics.ListAPIView):
-    # permission_classes = [PostUserWritePermission]
-    # queryset= Post.objects.all()
-    serializer_class = PostSerializer
-    
-    # what we mean by get a single object
-    # def get_object(self,queryset=None,**kwargs):
-    #     # get objects by it's slug instead of id
-    #     item = self.kwargs.get('pk')
-    #     return get_object_or_404(Post,slug=item)
-
-    # def get_queryset(self):
-    #     # filter posts based on their slug
-    #     slug = self.kwargs['pk']
-    #     print(slug)
-    #     return Post.objects.filter(slug=slug)
-    
-    def get_queryset(self):
-        # get parmeter for the url 
-        slug = self.request.query_params.get('slug',None) 
-        return Post.objects.filter(slug=slug)
+    def get_object(self, queryset=None, **kwargs):
+        item = self.kwargs.get('pk')
+        return get_object_or_404(Post, slug=item)
 
 
 
 # Post Search
-
 
 class PostListDetailfilter(generics.ListAPIView):
 
@@ -92,3 +73,26 @@ class PostListDetailfilter(generics.ListAPIView):
     # '=' Exact matches.
     # '@' full text search only with postgres .
     search_fields = ['^slug']
+
+
+# post admin
+class CreatePost(generics.CreateAPIView):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+# collect the data first to be able to edit it 
+class AdminPostDetail(generics.RetrieveAPIView):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+class EditPost(generics.UpdateAPIView):
+    print('in')
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+class DeletePost(generics.RetrieveDestroyAPIView):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
